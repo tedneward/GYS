@@ -1,0 +1,66 @@
+// vec_ops.gys - example of vector operators
+// -nw recommended
+/*
+	--> vector[]
+	--> vector+vector
+	--> vector+=vector
+
+	--> size() - gets number of elements in vector
+*/
+
+//-----------------------------Index-----------------------------
+vector v1=#int{0, 1, 2, 3, 4, 5}
+vector v2=#int{1, 2, 3}
+
+
+// print all the elements
+print("v1 = ")
+for(int i=0; i<size(v1); i++) {
+	print(string(v1[i])+'-')
+}         
+println("")
+
+print("v2 = ")
+for(i=0; i<size(v2); i++) {
+	print(string(v2[i])+'-')
+}         
+println("")
+
+//-----------------------------vector+vector-----------------------------
+println("")
+
+vector sum=v1+v2 // 1 2 3 5 5 5
+
+//  print v1+v2
+print("v1+v2 = ")
+for(i=0; i<size(sum); i++) {
+	print(string(sum[i])+'-')
+}         
+println("")
+
+//-----------------------------vector+=vector-----------------------------
+println("")
+
+vector v3=#string{"Hello", "world"}
+
+//  print v3
+print("v3 = ")
+
+for(i=0; i<size(v3); i++) {
+	print(string(v3[i])+'-')
+}         
+println("")
+
+v3+=v1+v2
+
+//  print v3 now
+println("v3+=v1+v2")
+print("v3 = ")
+
+for(i=0; i<size(v3); i++) {
+	print(string(v3[i])+'-')
+}         
+println("")
+
+println("\n--> Press any key to exit...")
+getch()

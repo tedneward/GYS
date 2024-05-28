@@ -1,0 +1,26 @@
+// if.gys - simple example of using if-statement
+/*
+	--> if
+*/
+
+println("--> Enter integer A: ")
+int a=readi()
+println("--> Enter integer B: ")
+int b=readi()
+
+print("\nRESULT: ")
+if(a<b)
+{
+	println("A<B")
+}
+else if(a>b)
+{
+	println("A>B")
+}
+else
+{
+	println("A=B")
+}
+
+println("\nPress any key to exit...")
+getch()

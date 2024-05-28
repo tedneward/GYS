@@ -1,0 +1,36 @@
+// vec_funcs1.gys - example of using built-in functions for vectors
+/*
+	--> content_type(<vector>) - gets elements' type
+	--> make_vector(<string>) - returns the emtpy vector of spec type
+	--> size(<vector>), empty(<vector>)
+	--> front(<vector>), back(<vector>)
+*/
+
+//-----------------------------content_type()-----------------------------
+println("content_type(#string) = "+content_type(#string))
+println("content_type(#)       = "+content_type(#))
+
+//-----------------------------make_vector()-----------------------------
+vector v1=make_vector("string");
+
+//-----------------------------size()-----------------------------
+println("")
+
+println("size(#int{1, 2, 3})  = "+size(#int{1, 2, 3}) )
+println("size(#char[101]:'?') = "+size(#char[101]:'?') )
+
+//-----------------------------empty()-----------------------------
+println("")
+
+println("empty(#int{1}) = "+empty(#int{1}) )
+println("empty(#char)   = "+empty(#char) )
+println("empty(#)       = "+empty(#) )
+
+//-----------------------------front() and back()-----------------------------
+println("")
+
+println("front(#int{1, 2, 3})       = "+front(#int{1, 2, 3}) )
+println("back(#char{'a', 'g', 'q'}) = "+back(#char{'a', 'g', 'q'}) )
+
+println("\n--> Press any key to exit...")
+getch()

@@ -1,0 +1,110 @@
+// stdGYS support file
+
+// "keywords":
+bool @true=1
+bool @false=0
+
+string @endl="\n"
+string @tab="\t"
+
+// ---------Perl-like vector join-func---------
+defunc
+string @join(vector vec, string join_str)
+{
+	string out=""
+		
+	for(int i=0; i<size(vec); i++)
+	{
+		out+=vec[i] // conversion into string
+
+		if(i<(size(vec)-1)) { // put join delimeter if need
+			out+=join_str
+		}
+	}
+
+	return out;
+};
+
+// ---------tree vector join-func---------
+defunc
+string @tjoin(vector vec, string join_str)
+{
+	string out=""
+		
+	for(int i=0; i<size(vec); i++)
+	{
+		if(content_type(vec)=="vector") { // join in subvectors recursively
+			out+=SELF(vec[i], join_str)
+		}
+		else {
+			out+=vec[i] // conversion into string
+		}
+
+		if(i<(size(vec)-1)) { // put join delimeter if need
+			out+=join_str
+		}
+	}
+
+	return out;
+};
+
+// ---------Lisp-like vector map-func---------
+defunc
+vector @map(vector vec, function func)
+{
+	vector out=vec
+
+	for(int i=0; i<size(vec); i++) {
+		out[i]=func(vec[i])
+	}
+
+	return out;
+};
+
+// ---------STL-like vector count_if()---------
+defunc
+int @count_if(vector vec, function predicate)
+{
+	int n=0
+	for(int i=0; i<size(vec); i++) {
+		if( predicate(vec[i]) ) { n++ }
+	}
+
+	return n;
+};	
+
+// ---------vector reverse---------
+defunc
+vector @reverse(vector vec)
+{
+	/*
+	// Lisp-style:
+	if(size(vec)<=1) {
+		return vec
+	}	
+	else {
+		return vector(back(vec))+SELF( erase(vec, size(vec)-1) )
+	}*/
+	
+	vector temp=#void // temporary value for swap
+	for(int i=0;i<size(vec)/2;i++)
+	{
+		temp=vec[i]
+		vec[i]=vec[size(vec)-i-1]		
+		vec[size(vec)-i-1]=temp
+	}
+	
+	return vec
+};
+
+// ---------vector find_if()---------
+defunc
+int @find_if(vector vec, function predicate)
+{
+	for(int i=0; i<size(vec); i++) {
+		if( predicate(vec[i]) ) { return i }
+	}
+
+	return -1; // not found
+};	
+

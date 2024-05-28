@@ -1,0 +1,23 @@
+// rand.gys - example of using rand() and srand()
+/*
+	--> srand()
+	--> rand()
+*/
+
+srand() // uses current time as seed
+// srand(123) // user's seed
+
+// print 10 random numbers
+for(int i=0;i<10;i++)	{
+	println(rand())
+}
+
+println("")
+
+// print 10 random numbers [0;9]
+for(i=0;i<10;i++) {
+	println(rand()%10)
+}
+
+println("\n--> Press any key to exit...")
+getch()

@@ -1,0 +1,3 @@
+// print current version
+
+println("GYS version is "+VERSION)

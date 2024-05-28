@@ -1,0 +1,16 @@
+// wait.gys - wait() example
+/*
+	--> wait(<ms>) - stops execution
+*/
+
+println("Please, wait (0.5 sec)...")
+wait(500)
+
+println("Please, wait (1 sec)...")
+wait(1000)
+
+println("Please, wait (1.5 sec)...")
+wait(1500)
+
+println("\n--> Press any key to exit...")
+getch()

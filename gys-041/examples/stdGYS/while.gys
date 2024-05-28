@@ -1,0 +1,30 @@
+// while.gys - example of while loop (BIGGER-LESS GAME)
+/*
+	--> while loop
+*/
+
+println("Guess the number [0;100]!!!")
+
+srand()
+int n=rand()%101
+int in=0
+
+while(n!=in)
+{
+	print("> ")
+	in=readi()
+
+	if(in>n)
+	{
+		println("LESS")
+	}
+	else if(in<n)
+	{
+		println("BIGGER")
+	}
+}
+
+println("You won!")
+
+println("\n--> Press any key to exit...")
+getch()

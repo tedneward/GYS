@@ -1,0 +1,45 @@
+// func_decl.gys - example of function definition
+/*
+	--> function type
+	--> fn - returns function
+	--> defunc - defines new function variable/constant
+*/
+
+//-----------------------------standard-----------------------------
+function mult=
+~int(int a, int b)
+{	
+	return a*b
+}
+
+//-----------------------------fn-----------------------------
+function mult2=
+fn int(int a, int b)
+{	
+	return a*b
+}
+
+// also you can just call this built-in func without var definition:
+/*
+fn int(int a, int b)
+{	
+	return a*b
+} // this will return value of type function
+(2,3) // execute the returned function
+*/
+
+//-----------------------------defunc-----------------------------
+// global function (it's just global function variable)
+defunc global int sum(int a, int b)
+{
+	return a+b
+}
+
+// local constant function
+defunc int @sum(int a, int b)
+{
+	return a+b
+}
+
+println("\nPress any key to exit...")
+getch()

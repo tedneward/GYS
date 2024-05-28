@@ -1,0 +1,97 @@
+// vec_funcs2.gys - another functions for vector
+// -nw recommended
+/*
+	--> push_back(<vector>, <?>), pop_back(<vector>)
+	--> insert(<vector>, <int>, <?>)
+	--> erase(<vector>, <int>), clear(<vector>)
+*/
+
+//-----------------------------push_back() and pop_back()----------------------
+println("")
+
+println("(1) v2 is empty")
+vector v2=#int
+
+println("(2) push_back(v2, 3)\n    push_back(v2, 4)\n    push_back(v2, 5)")
+push_back(v2, 3)
+push_back(v2, 4)
+push_back(v2, 5)
+
+print("    v2 = ")
+for(int i=0; i<size(v2); i++) {
+	print(string(v2[i])+'-')
+}         
+println("")
+
+println("(3) pop_back(v2)")
+pop_back(v2)
+print("    v2 = ")
+for(i=0; i<size(v2); i++) {
+	print(string(v2[i])+'-')
+}         
+println("")
+
+println("(4) pop_back(v2)")
+pop_back(v2)
+print("    v2 = ")
+for(i=0; i<size(v2); i++) {
+	print(string(v2[i])+'-')
+}         
+println("")
+//-----------------------------insert()-----------------------------
+println("")
+
+vector v3=#int{6, 4, 3, 5}
+
+print("(1) v3 = ")
+for(i=0; i<size(v3); i++) {
+	print(string(v3[i])+'-')
+}         
+println("")
+
+println("(2) insert(v3, 1, 10)")
+insert(v3, 1, 10)
+
+print("    v3 = ")
+for(i=0; i<size(v3); i++) {
+	print(string(v3[i])+'-')
+}         
+println("")
+
+println("(3) insert(v3, 4, -4)")
+insert(v3, 4, -4)
+
+print("    v3 = ")
+for(i=0; i<size(v3); i++) {
+	print(string(v3[i])+'-')
+}         
+println("")
+
+//-----------------------------erase() and clear()-----------------------------
+println("")
+
+println("(1) erase(v3, 0)")
+erase(v3, 0)
+
+print("    v3 = ")
+for(i=0; i<size(v3); i++) {
+	print(string(v3[i])+'-')
+}         
+println("")
+
+println("(2) erase(v3, 3)")
+erase(v3, 3)
+
+print("    v3 = ")
+for(i=0; i<size(v3); i++) {
+	print(string(v3[i])+'-')
+}         
+println("")
+
+println("(3) clear(v3)")
+clear(v3)
+
+println("    empty(v3) = "+empty(v3) )                           
+
+println("\n--> Press any key to exit...")
+getch()

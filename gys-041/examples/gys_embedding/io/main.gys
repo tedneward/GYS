@@ -1,0 +1,3 @@
+print("What is your name?\n") // just print something
+string name=gets() // create new var and read string from the input 
+print("Greetings, "+name+"!\n") // print out message using string+string operator in expression evaluation 

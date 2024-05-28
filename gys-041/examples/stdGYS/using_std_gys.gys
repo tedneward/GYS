@@ -1,0 +1,18 @@
+// using_std_gys.gys - example of using some stuff from file std.gys
+// -nw option is recommended
+/*
+	--> std.gys file
+	--> import("") function
+*/
+
+import("std.gys") // copying all vars from another script
+
+vector v=#int{1, 2, 3}
+string s="abcd"
+
+println("v="+join(v, "::"))
+
+println("reverse(v)="+join(reverse(v), "::"))
+
+println("\nPress any key to exit...")
+getch()

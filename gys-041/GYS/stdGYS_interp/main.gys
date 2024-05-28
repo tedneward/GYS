@@ -1,0 +1,3 @@
+println("-"*28+"GYS Version is "+VERSION+"-"*28+"\n")
+
+println("Hello, world!")

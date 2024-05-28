@@ -1,0 +1,14 @@
+// argv.gys - example of using ARGV array (only with gys.exe!)
+/*
+	--> global array ARGV with arguments from the command line
+*/
+
+// print all the arguments from the command line
+println("Arguments:")
+
+for(int i=0;i<size(ARGV);i++) {
+	println("\t"+i+" - "+ARGV[i])
+}
+
+println("\nPress any key to exit...")
+getch()

@@ -1,0 +1,10 @@
+// system.gys - example of using built-in function system()
+/*
+	--> system() 
+*/
+
+// This command will print this file:
+system("type system.gys")
+
+println("\n\n--> Press any key to exit...")
+getch()

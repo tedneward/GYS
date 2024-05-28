@@ -1,0 +1,36 @@
+// io.gys - std IO-functions
+/*
+	--> print(), println(), putch()
+	--> getch()
+	--> read[bidcs]()
+
+	--> tolower(), toupper()
+	--> ctoi() - gets ASCII code
+*/
+
+//-----------------------------Out-----------------------------
+print("Hello, World!!! (1)\n")
+
+println("Hello, World!!! (2)")
+
+//-----------------------------In------------------------------
+println("\n--> Press any key...")
+char ch=getch()
+println("You've pressed '"+ch+"' ("+ctoi(ch)+")")
+println("In lower case: '"+tolower(ch)+'\'')
+println("In upper case: '"+toupper(ch)+'\'')
+
+
+print("\n--> Enter integer: ")
+int a=readi()
+println("You've entered integer a="+a)
+
+print("--> Enter double: ")
+double b=readd()
+println("You've entered double b="+b+'\n')
+
+println("a+b="+double(a+b))
+
+println("\n--> Press any key to exit...")
+getch()
+

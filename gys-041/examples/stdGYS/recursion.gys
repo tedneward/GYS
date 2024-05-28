@@ -1,0 +1,22 @@
+// recursion.gys - example of factorial function
+/*
+	--> SELF constant
+*/
+
+defunc double @factorial(double x)
+{
+	if(x<=1) {
+		return 1
+	}
+	else {
+		return x*SELF(x-1) // @SELF==current function
+	}
+}
+
+println("--> Enter number: ")
+double x=readd()
+
+println("x!="+factorial(x))
+
+println("\n--> Press any key to exit...")
+getch()

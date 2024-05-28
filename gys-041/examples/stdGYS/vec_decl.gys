@@ -1,0 +1,63 @@
+// vec_decl.gys - example of different vector declarations
+/*
+	--> type vector
+*/
+
+vector v1=#string // empty array of strings
+
+vector v2=# ; // empty 2D-array (# means #vector)
+
+vector v3=#int{1, 2, 3} // 1 2 3
+
+vector v4=#int[3]:5 // 5 5 5
+
+vector v5=#[3]:#bool{0, 1, 0, 0, 1} // 0 1 0 0 1
+	                                // 0 1 0 0 1
+    	                            // 0 1 0 0 1
+
+vector v6=#[3]:#char[5]:'a' // a a a a a
+                            // a a a a a
+                            // a a a a a
+
+vector v7=#[3]:#[3]:#double[3]:0 // 3D-array
+
+// 2D string array with indexes as elements
+vector v8=#{
+				#string{"00", "01", "02", "03"},
+				#string{"10", "11", "12", "13"},
+				#string{"20", "21", "22", "23"},
+				#string{"30", "31", "32", "33"}
+		   }
+
+vector v9=#{
+				#string{ "Alex", "John" }, 
+
+				#bool{ 1, 0, 0 },
+
+				#char{ 'q', 'w', '\n', '?', '\\' },
+
+				#int,     
+                         				
+				#double[10]: 0.4,  
+                
+				#{
+					#[10]:#[2]:#bool[9]:1,
+					#string{ "Are", "you", "impressed" },
+					#char{ '?' }
+				},
+		
+				#[3]:#[3]:#int{ 9, 4, 2, 9 }
+		    }
+			
+
+/*
+println( v9[0][0] ) // Alex
+println( v9[0][0][3] ) // x
+println( v9[2][4] ) // \
+println( v9[5][1][1] ) // you
+println( v9[5][2][0] ) // ?
+println( v9[6][2][2][3] ) // 9                                       
+*/
+
+println("\nPress any key to exit...")
+getch()

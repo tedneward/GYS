@@ -1,0 +1,25 @@
+// func_call.gys - example of function calling
+/*
+	--> postfix operator function(
+*/
+
+// define new fucntion:  
+defunc
+string @concat(string s1, string s2)
+{
+	return s1+s2
+}
+
+// we use operator ( to call our func
+println("concat(\"Hello\", \" world!\") = "+ concat("Hello", " world!") )
+
+// create nameless func and call it:  
+println("")     
+
+fn void()
+{
+	println("I, nameless function, has been called!")
+} ()
+
+println("\nPress any key to exit...")
+getch()

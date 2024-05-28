@@ -1,0 +1,15 @@
+// kbhit.gys - using kbhit() and getch()
+// use with -nw to avoid int->bool conversion warnings
+/*
+	--> int kbhit()
+	--> char getch()
+*/
+
+while(!kbhit()) {
+ 	println("Hit me!")
+}
+
+println("You've pressed '"+getch()+"'")
+
+println("\nPress any key to exit...")
+getch()

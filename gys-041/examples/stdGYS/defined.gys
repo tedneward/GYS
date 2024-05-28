@@ -1,0 +1,15 @@
+// defined.gys - example of using defined() built-in function
+/*
+	--> defined()
+*/
+
+println("defined(println)="+defined(println))
+println("defined(defined)="+defined(defined))
+
+int x=0                        
+println("defined(x)="+defined(x)+" (var x exist)")
+
+println("defined(qwerty)="+defined(qwerty))
+
+println("\nPress any key to exit...")
+getch()

@@ -1,0 +1,6 @@
+// sub.gys - simple script which is called from run_funcs example
+
+println("Hello from subscript! I'm called from run_script().")
+
+println("\n--> Press any key to exit...")
+getch()

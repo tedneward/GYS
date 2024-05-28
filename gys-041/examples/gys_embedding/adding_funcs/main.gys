@@ -1,0 +1,5 @@
+int x=10
+
+// here we call OUR println
+my_println("x="+x)
+my_println("(x+3)*5="+int((x+3)*5))

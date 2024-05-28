@@ -1,0 +1,17 @@
+// for.gys - for-loop example: calculating factorial
+/*
+	--> for-loop
+*/
+
+println("Enter integer X: ")
+int x=readi()
+
+double s=1
+for(int i=1; i<=x; i++) {
+	s*=i
+}
+
+println("X!="+s)
+
+println("\nPress any key to exit...")
+getch()

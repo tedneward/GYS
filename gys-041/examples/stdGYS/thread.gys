@@ -1,0 +1,19 @@
+// thread.gys - thread spec. using example
+/*
+	--> operator function( ) : thread
+*/
+
+defunc void f(int i) 
+{
+	println("Thread #"+i+" started")	
+	wait(1000)
+	println("Thread #"+i+" finished")	
+}
+
+for(int i=0;i<10;i++) {
+	f(i):thread // run function in new thread
+	wait(100)
+}
+
+getch()
+

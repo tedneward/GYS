@@ -1,0 +1,409 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>GYS - Tutorial</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+<style type="text/css">
+<!--
+.S0 {	color: #808080;
+	background: #FFFFFF;
+}
+.S10 {	font-weight: bold;
+	color: #007F7F;
+	background: #FFFFFF;
+}
+.S2 {	color: #007F00;
+	background: #FFFFFF;
+}
+.S5 {	color: #0000FF;
+	background: #FFFFFF;
+}
+.S6 {	color: #7F007F;
+	background: #FFFFFF;
+}
+.S1 {	color: #007F00;
+	background: #FFFFFF;
+}
+-->
+</style>
+</head>
+
+<body>
+ <h1 align="center"><strong>GYS 0.4.0 TUTORIAL</strong></h1>
+ <p align="center"><strong>These topics are NOT covered in this tutorial yet (see stdGYS implementation for examples): </strong></p>
+ <ol>
+   <li><strong>Prefix operators </strong></li>
+   <li><strong>Postfix operators</strong></li>
+   <li><strong>Conversions</strong></li>
+ </ol>
+ <p align="center">Some basic GYS techniques will be introduced in this tutorial:</p>
+ <ol>
+   <li><a href="#Userdata">Storing user data in GYS_ret_val objects</a></li>
+   <li><a href="#AddingType">Adding new type in GYS</a></li>
+   <li><a href="#AddingFunctions">Adding new built-in functions (commands) in GYS</a></li>
+   <li><a href="#AddingVarStatement">Adding variable definition statement</a></li>
+   <li><a href="#AddingBinaryOp">Adding new binary operators</a></li>
+   <li><a href="#ExecutingScript">Full code </a></li>
+</ol>
+ <p>For example we want to create interpreter which can execute next simple script:</p>
+ <p> <span><span class="S0">&nbsp; &nbsp; </span><code>print<span class="S10">(</span><span class="S6">"What is your name?\n"</span><span class="S10">)</span><span class="S0"> &nbsp;&nbsp;</span><span class="S2">// just print something</span><br />
+    <span class="S0">&nbsp; </span><span class="S5">string</span> name<span class="S10">=</span>gets<span class="S10">()</span><span class="S0"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="S2">// create new var and read string from the input </span><br />
+  <span class="S0">&nbsp; </span>print<span class="S10">(</span><span class="S6">"Greetings, "</span><span class="S10">+</span>name<span class="S10">+</span><span class="S6">"!\n"</span><span class="S10">)</span> <span class="S2"> // print out message using string+string operator in expression evaluation </span></code></span></p>
+ <p>So we need to create:</p>
+ <ul>
+   <li><code>'string' </code>type</li>
+   <li>built-in functions <code>print</code> and <code>gets </code>with appropriate syntax</li>
+   <li>mechanism of variable definition for this type</li>
+   <li>binary operator <code>string+string</code> for concatenation</li>
+ </ul>
+ <hr>
+ <h2>Storing user data in GYS_ret_val objects<a name="Userdata"></a></h2>
+ <p>In order to  define new type for GYS interpreter user should make it possible to store values of this type in <code>GYS_ret_val</code> objects.</p>
+ <p>1. Create new class derived from <code>GYS_user_val</code> and redefine 2  functions (using objects of this new class user will be able to pass specified data via <code>GYS_ret_val</code> objects):</p>
+<p> <span><span class="S0">&nbsp; &nbsp; </span><span class="S5"><code>class</code></span><code> GYS_user_val <span class="S10">:</span> <span class="S5">public</span> RefCntObject <span class="S2">// from gys.h</span><br />
+    <span class="S0">&nbsp; </span><span class="S10">{</span><br />
+    <span class="S0">&nbsp; </span><span class="S5">public</span><span class="S10">:</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S5">virtual</span> <span class="S5">void</span><span class="S10">*</span>  get_user_val<span class="S10">()</span> <span class="S10">=</span>0<span class="S10">;</span><br />
+    <span class="S0">&nbsp;  &nbsp; &nbsp; </span><span class="S5">virtual</span> string get_type_name<span class="S10">()</span> <span class="S5">const</span> <span class="S10">=</span>0<span class="S10">;</span><br />
+    <span class="S0">&nbsp;  </span><span class="S10">};</span><br />
+    <br />
+    <span class="S0">&nbsp; </span><span class="S2">// ...user creates next class:</span><br />
+    <span class="S0">&nbsp; </span><span class="S5">class</span> GYS_string_user_val<span class="S10">:</span> <span class="S5">public</span> GYS_user_val <span><span class="S2">// objects of this class contain string data</span></span><br />
+    <span class="S0">&nbsp; </span><span class="S10">{</span><br />
+    <span class="S0">&nbsp; </span><span class="S5">private</span><span class="S10">:</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>string val<span class="S10">;</span><br />
+    <br />
+    <span class="S0">&nbsp; </span><span class="S5">public</span><span class="S10">:</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>GYS_string_user_val<span class="S10">(</span>string str<span class="S10">)</span> <span class="S10">:</span> val<span class="S10">(</span>str<span class="S10">)</span> <span class="S10">{</span> <span class="S10">}</span><br />
+    <br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S2">// returns typename as we see it in scripts</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>string get_type_name<span class="S10">()</span> <span class="S5">const</span> <span class="S10">{</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span class="S5">return</span> <span class="S6">"string"</span><span class="S10">;</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S10">}</span><br />
+    <br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S2">// retuns data (as void* value!)</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S5">void</span><span class="S10">*</span> get_user_val<span class="S10">()</span> <span class="S10">{</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span class="S5">return</span> <span class="S10">&amp;</span>val<span class="S10">;</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S10">}</span><br />
+  <span class="S0">&nbsp; </span><span class="S10">};</span></code></span></p>
+<p>2. Create function which stores <code>string</code> data into <code>GYS_ret_val</code> objects using class described above. This function will be used by <code>GYS_ret_val</code> objects to manipulate user data:</p>
+<p> <span><span class="S0">&nbsp; &nbsp; </span><code>GYS_ret_val<span class="S10">&amp;</span> store<span class="S10">(</span>GYS_ret_val<span class="S10">&amp;</span> val<span class="S10">,</span> string string_user_val<span class="S10">)</span><br />
+    <span class="S0">&nbsp; </span><span class="S10">{</span><br />
+    <span class="S0">&nbsp;  &nbsp; &nbsp; </span>val<span class="S10">.</span>set_user_val<span class="S10">(</span> <span class="S5">new</span> GYS_string_user_val<span class="S10">(</span>string_user_val<span class="S10">)</span> <span class="S10">);</span><br />
+    <span class="S0">&nbsp;  &nbsp; &nbsp; </span><span class="S5">return</span> val<span class="S10">;</span><br />
+  <span class="S0">&nbsp;  </span><span class="S10"> }</span></code></span></p>
+<p>Here <span><code>GYS_string_user_val</code></span> object is created dynamically, it will be destroyed automatically: GYS uses smart pointers with ref. counter for user values. We just pass new user value into <code>GYS_ret_val</code> object using <code>set_user_val</code> member function.</p>
+<p>That's it. Now we can use <u>only</u> <code>GYS_ret_val</code> objects to manipalute string data (its members will call appropriate <span><code>get_type_name()</code></span> and <code>store()</code> functions for different user data):</p>
+<p> <span><span class="S0"><code>&nbsp; </code></span><code>GYS_ret_val test<span class="S10">()</span><br />
+    <span class="S0">&nbsp;  </span><span class="S10">{</span><br />
+    <span class="S0">&nbsp;  &nbsp; &nbsp; </span><span class="S2">// create new value</span><br />
+    <span class="S0">&nbsp;  &nbsp; &nbsp; </span>GYS_ret_val str_val<span class="S10">;</span><br />
+    <br />
+    <span class="S0">&nbsp;  &nbsp; &nbsp; </span><span class="S2">// store new data</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>string str<span class="S10">=</span><span class="S6">"test"</span><span class="S10">;</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>str_val<span class="S10">=</span>str<span class="S10">;</span> <br />
+    <br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S2">// get typename of contained value</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>cout<span class="S10">&lt;&lt;</span>str_val<span class="S10">.</span>get_type_name<span class="S10">()&lt;&lt;</span>endl<span class="S10">;</span> <span class="S2">// &gt;string</span><br />
+    <br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S2">// get contained data as string</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>cout<span class="S10">&lt;&lt;(</span>string<span class="S10">)</span>str_val<span class="S10">&lt;&lt;</span>endl<span class="S10">;</span><span class="S0"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="S2">// &gt;test</span><br />
+    <br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S2">// create lvalue for this value</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>GYS_ret_val str_lvalue<span class="S10">=&amp;</span>str_val<span class="S10">;</span><br />
+    <br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S2">// operator= changes str_val</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>str_lvalue<span class="S10">=</span><span class="S6">"new string"</span><span class="S10">;</span><br />
+    <br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>cout<span class="S10">&lt;&lt;(</span>string<span class="S10">)</span>str_val<span class="S10">&lt;&lt;</span>endl<span class="S10">;</span><span class="S0"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="S2">// &gt;new string</span><br />
+    <br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S2">// set_val() cleans lvalue and doesn't affect str_val now</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>str_lvalue<span class="S10">.</span>set_val<span class="S10">(</span><span class="S6">"another string"</span><span class="S10">);</span><br />
+    <br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>cout<span class="S10">&lt;&lt;(</span>string<span class="S10">)</span>str_lvalue<span class="S10">&lt;&lt;</span>endl<span class="S10">;</span><span class="S0"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="S2">// &gt;another string</span><br />
+    <br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>cout<span class="S10">&lt;&lt;(</span>string<span class="S10">)</span>str_val<span class="S10">&lt;&lt;</span>endl<span class="S10">;</span><span class="S0"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="S2">// &gt;new string - nothing happened</span><br />
+    <br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S5">return</span> <span class="S6">"returned string"</span><span class="S10">;</span><br />
+    <span class="S0">&nbsp;  </span><span class="S10">}</span><br />
+    <span class="S0">&nbsp;  </span><span class="S2">//...</span><br />
+    <br />
+<span class="S0">&nbsp;  </span>cout<span class="S10">&lt;&lt;(</span>string<span class="S10">)</span>test<span class="S10">()&lt;&lt;</span>endl<span class="S10">;</span> <span class="S2">// &gt;returned string</span></code></span></p>
+<hr>
+<h2><strong>Adding new GYS type<a name="AddingType"></a></strong></h2>
+<p>To define new type user should write the code which the interpreter will call to read &quot;raw data&quot; from a script. &quot;Raw data&quot; is some expression interpreter can't evaluate using built-in mechanisms (functions, operators, variables etc.). It is exactly what we need to interpret string-tokens as string values in our script. </p>
+<p>1. So we define next function which can be called by GYS interpreter:</p>
+<p> <span><span class="S0">&nbsp; &nbsp; </span><span class="S2"><code>// gets raw string data</code></span><code><br />
+    <span class="S0">&nbsp; </span>GYS_ret_val get_string_val<span class="S10">(</span>GYS<span class="S10">*</span> script<span class="S10">)</span><br />
+    <span class="S0">&nbsp; </span><span class="S10">{</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>script<span class="S10">-&gt;</span>get_token<span class="S10">();</span> <span class="S2">// read next token</span><br />
+    <br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S5">if</span><span class="S10">(</span>script<span class="S10">-&gt;</span>get_tok_type<span class="S10">()==</span>GYS_STRING<span class="S10">)</span> <span class="S2">// check its type</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S10">{</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span class="S5">return</span> <span class="S10">(</span>string<span class="S10">)</span>script<span class="S10">-&gt;</span>get_tok_str<span class="S10">();</span> <span class="S2">// return token - it is the string we need</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S10">}</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S5">else</span> <span class="S2">// error</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S10">{</span><br />
+    <span class="S0">&nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; </span>script<span class="S10">-&gt;</span>error<span class="S10">(</span><span class="S6">"'string' getting: string-token expected: "</span><span class="S10">,</span> script<span class="S10">-&gt;</span>get_tok_str<span class="S10">());</span> <span class="S2">// error</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span class="S5">return</span> GYS_ret_val<span class="S10">();</span> <span class="S2">// return void value</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S10">}</span><br />
+  <span class="S0">&nbsp; </span><span class="S10">}</span></code></span></p>
+<p>2. At last in order to add new 'string' GYS type we call <code>add_gys_type()</code> function:</p>
+<p>  <span><span class="S0">&nbsp; &nbsp; </span><span class="S2"><code>//...</code></span><code><br />
+    <span class="S0">&nbsp; </span>script<span class="S10">.</span>add_gys_type<span class="S10">(</span><span class="S6">"string"</span><span class="S10">,</span> get_string_val<span class="S10">);</span></code></span></p>
+<hr>
+<h2><strong>Adding new GYS built-in functions (commands)<a name="AddingFunctions"></a> </strong></h2>
+<p>The GYS interpreter calls user code to execute any built-in function (command) which is recognized by name-token (identifier).</p>
+<p>1. We write code which processes 'print' and 'gets' script functions:</p>
+<p> <span><span class="S0"><code>&nbsp; </code></span><code><span class="S2">// this function will be called to interpret 'print' name-token</span><br />
+    <span class="S0">&nbsp; </span>GYS_ret_val exec_print<span class="S10">(</span>GYS<span class="S10">*</span> script<span class="S10">)</span><br />
+    <span class="S0">&nbsp;  </span><span class="S10">{</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>script<span class="S10">-&gt;</span>exam<span class="S10">(</span><span class="S6">"("</span><span class="S10">);</span> <span class="S2">// read next token and check it for "("</span><br />
+    <span class="S0">&nbsp; &nbsp; </span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>cout <span class="S10">&lt;&lt;</span> <span class="S10">(</span>string<span class="S10">)</span>script<span class="S10">-&gt;</span>get_val<span class="S10">(</span><span class="S6">"string"</span><span class="S10">);</span> <span class="S2">// evaluate expression to get value of type 'string' </span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>script<span class="S10">-&gt;</span>exam<span class="S10">(</span><span class="S6">")"</span><span class="S10">);</span> <span class="S2">// read next token and check it for ")"&nbsp; </span><br />
+    <span class="S0">&nbsp; &nbsp; </span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S5">return</span> GYS_ret_val<span class="S10">();</span> <span class="S2">// return "nothing" - value of type gys_void_type</span><br />
+  <span class="S0">&nbsp; </span><span class="S10">}</span></code></span></p>
+<p> <span><span class="S0"><code>&nbsp; </code></span><code>GYS_ret_val exec_gets<span class="S10">(</span>GYS<span class="S10">*</span> script<span class="S10">)</span><br />
+    <span class="S0">&nbsp;  </span><span class="S10">{</span><br />
+    <span class="S0">&nbsp;  &nbsp; &nbsp; </span>script<span class="S10">-&gt;</span>exam<span class="S10">(</span><span class="S6">"("</span><span class="S10">);</span><br />
+    <br />
+    <span class="S0">&nbsp;  &nbsp; &nbsp; </span>string str<span class="S10">;</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>cin <span class="S10">&gt;&gt;</span> str<span class="S10">;</span><br />
+    <br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>script<span class="S10">-&gt;</span>exam<span class="S10">(</span><span class="S6">")"</span><span class="S10">);</span><br />
+    <br />
+    <span class="S0">&nbsp;  &nbsp; &nbsp; </span><span class="S5">return</span> str<span class="S10">;</span><br />
+  <span class="S0">&nbsp; </span><span class="S10">}</span></code></span></p>
+<p>2. We add 'print' and 'gets' built-in script functions using <code>add_gys_func()</code> function:</p>
+<p> <span> <span><code><span><span class="S0">&nbsp; &nbsp;</span><span class="S2">//...</span><br />
+          <span class="S0">&nbsp;  </span>script<span class="S10">.</span>add_gys_func<span class="S10">(</span><span class="S6">"print"</span><span class="S10">,</span><span class="S0"> </span>exec_print<span class="S10">);</span><br />
+          <span class="S0">&nbsp;  </span>script<span class="S10">.</span>add_gys_func<span class="S10">(</span><span class="S6">"gets"</span><span class="S10">,</span><span class="S0"> </span>exec_gets<span class="S10">);</span></span> </code></span></span></p>
+<p> After this the first line of our script is executable:</p>
+<p><span><span class="S0">&nbsp; &nbsp; </span><code>print<span class="S10"> ( </span><span class="S6">"What is your name?\n" </span><span class="S10">) </span><span class="S2">// &gt;What is your name?</span></code></span></p>
+<p>Or, for example, this:</p>
+<p> <span> <span><span class="S0"><code>&nbsp; </code></span><code>print<span class="S10">(</span> gets<span class="S10">() )</span> <span class="S2">// echos user's input</span></code></span> </span></p>
+<p>C/C++-style comments are supported by GYS lexical analyzer by default as well as escape sequences in string- and char-tokens.</p>
+<hr>
+<h2><strong>Adding variable definition statement<a name="AddingVarStatement"></a></strong></h2>
+<p>To add variable definition &quot;statement&quot; we can use GYS built-in function with name 'string' and use<code> GYS::add_local_var() </code>member function for adding new variables (or constants if we pass variable name as &quot;@var_name&quot; but we create only variables in our example):</p>
+<p> <span><span class="S0"><code>&nbsp; </code></span>      </span><code><span><span class="S0"> </span>GYS_ret_val exec_string<span class="S10">(</span>GYS<span class="S10">*</span> s<span class="S10">)</span><br />
+    <span class="S0">&nbsp;  </span><span class="S10">{</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S5">string</span> type<span class="S10">=</span><span class="S6">"string"</span><span class="S10">;</span><br />
+    <span class="S0">&nbsp; &nbsp; </span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>GYS_ret_val val<span class="S10">;</span> <span class="S2">// value for new var</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S5">string</span> name<span class="S10">;</span><span class="S0"> &nbsp;&nbsp;&nbsp;&nbsp;</span><span class="S2">// var name</span><br />
+    <span class="S0">&nbsp; &nbsp; </span><br />
+    <span class="S0">&nbsp; </span>new_var<span class="S10">:</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>s<span class="S10">-&gt;</span>get_token<span class="S10">();</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S5">if</span><span class="S10">(</span>s<span class="S10">-&gt;</span>get_tok_type<span class="S10">()!=</span>GYS_NAME<span class="S10">)</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S10">{</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span>s<span class="S10">-&gt;</span>error<span class="S10">(</span><span class="S6">"Variable token expected: "</span><span class="S10">,</span> s<span class="S10">-&gt;</span>get_tok_str<span class="S10">());</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span class="S5">return</span> GYS_ret_val<span class="S10">();</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S10">}</span><br />
+    <span class="S0">&nbsp; &nbsp; </span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>name<span class="S10">=</span>s<span class="S10">-&gt;</span>get_tok_str<span class="S10">();</span><br />
+    <span class="S0">&nbsp; &nbsp; </span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S5">if</span><span class="S10">(!</span>s<span class="S10">-&gt;</span>exam<span class="S10">(</span><span class="S6">"="</span><span class="S10">))</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span class="S5">return</span> GYS_ret_val<span class="S10">();</span><br />
+    <span class="S0">&nbsp; &nbsp; </span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S5">if</span><span class="S10">(</span> <span class="S10">(</span> val<span class="S10">=</span>s<span class="S10">-&gt;</span>get_val<span class="S10">(</span> type <span class="S10">)</span> <span class="S10">).</span>get_type_name<span class="S10">()!=</span>gys_void_type <span class="S10">)</span> <span class="S2">// not void</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span>s<span class="S10">-&gt;</span>add_local_var<span class="S10">(</span>name<span class="S10">,</span> val<span class="S10">.</span>get_value<span class="S10">());</span><br />
+    <span class="S0">&nbsp; &nbsp; </span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span>s<span class="S10">-&gt;</span>get_token<span class="S10">();</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S5">if</span><span class="S10">(</span>s<span class="S10">-&gt;</span>get_tok_type<span class="S10">()==</span>GYS_DELIMETER <span class="S10">&amp;&amp;</span> s<span class="S10">-&gt;</span>get_tok_str<span class="S10">()==</span><span class="S6">","</span><span class="S10">)</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span class="S5">goto</span> new_var<span class="S10">;</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S5">else</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span>s<span class="S10">-&gt;</span>putback_tok<span class="S10">();</span><br />
+    <span class="S0">&nbsp; &nbsp; </span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S5">return</span> GYS_ret_val<span class="S10">();</span><br />
+    <span class="S0">&nbsp; </span><span class="S10">}</span> <br />
+    <span class="S0">&nbsp; &nbsp; </span><br />
+    <span class="S0">&nbsp; </span><span class="S2">//...</span><br />
+  <span class="S0"> &nbsp; </span>script<span class="S10">.</span>add_gys_func<span class="S10">(</span><span class="S6">"string"</span><span class="S10">,</span> exec_string<span class="S10">);</span></span> </code></p>
+<p>Now next script will be executed correctly:</p>
+<p> <span><span class="S0"><code>&nbsp; </code></span><code><span class="S5">string</span> str1<span class="S10">=</span><span class="S6">"hello"</span><span class="S10">,</span> <span class="S0"> </span>str2<span class="S10">=</span><span class="S6">"bye"</span>, <span class="S0"> </span>str3<span class="S10">=</span>str2</code></span></p>
+<hr>
+<h2><strong>Adding binary operators<a name="AddingBinaryOp"></a></strong></h2>
+<p>User calls function <code>add_binary_op()</code> in order to add new GYS binary operator. Here is code for adding our operator:</p>
+<p> <span><span class="S0"><code>&nbsp; </code></span><code><span class="S2">// string+string</span><br />
+    <span class="S0">&nbsp; </span>GYS_ret_val op_add_string<span class="S10">(</span>GYS<span class="S10">*</span> script<span class="S10">,</span> GYS_ret_val left_operand<span class="S10">,</span> GYS_ret_val right_operand<span class="S10">)</span><br />
+    <span class="S0">&nbsp; </span><span class="S10">{</span><br />
+    <span class="S0">&nbsp; &nbsp; &nbsp; </span><span class="S5">return</span> <span class="S10">(</span>string<span class="S10">)</span>l<span>eft_operand </span><span class="S10">+</span> <span class="S10">(</span>string<span class="S10">)</span>right_operand<span class="S10">;</span><br />
+    <span class="S0">&nbsp; </span><span class="S10">}</span><br />
+    <span class="S0">&nbsp; &nbsp; </span><br />
+    <span class="S0">&nbsp; </span><span class="S2">//...</span><br />
+    <span class="S0">&nbsp; </span>script<span class="S10">.</span>add_binary_op<span class="S10">(</span><span class="S6">"+"</span><span class="S10">,</span> <span class="S6">"string"</span><span class="S10">,</span> <span class="S6">"string"</span><span class="S10">,</span> op_add_string<span class="S10">);</span></code><br />
+    </span></p>
+<p>GYS interpreter recognizes binary operator by name (<code>&quot;+&quot;</code>) and type of its left operand (<code>&quot;string&quot;</code> - second argument), after that interpreter evaluates right operand of type specified by user (<code>&quot;string&quot; - </code>third arg) and calls user function to calculate the result of this operator (<code>op_add_string()</code>). It means that user can't define 2 different operators with identical &quot;left-operand&quot;-types and names (e.g. operators <code>type1+ type2</code> and <code>type1+ type3</code> are incompatible) because they are &quot;identical&quot; for GYS expression evaluator. Next names for binary operators are available in GYS:</p>
+<p> <span><span class="S0"><code>&nbsp; &nbsp; </code></span><code><span class="S10">+</span> <span class="S10">-</span><br />
+    <span class="S0">&nbsp; &nbsp; </span><span class="S10">*</span> <span class="S10">/</span> <span class="S10">%</span><br />
+    <span class="S0">&nbsp; &nbsp; </span><span class="S10">=</span> := <span class="S10">+=</span> <span class="S10">-=</span> <span class="S10">*= </span><span class="S10">/=</span> <span class="S10">%=</span><br />
+    <span class="S0">&nbsp; &nbsp; </span><span class="S10">== != === </span> <span class="S10">!==</span> <span class="S10">&lt;</span> <span class="S10">&gt;</span> <span class="S10">&lt;=</span> <span class="S10">&gt;=</span> <span class="S10">&amp;&amp;</span> <span class="S10">||</span><br />
+    <span class="S0">&nbsp; &nbsp; </span><span class="S10">[] &lt;&lt; &gt;&gt; &lt;&lt;= &gt;&gt;=</span></code><br />
+    <span class="S0"></span></span> </p>
+<hr>
+<h2><strong>Full code<a name="ExecutingScript"></a> </strong></h2>
+<p>This is the full code of our simple interpreter:</p>
+<p> <span><span class="S2"><code>// test.cpp : example of GYS embedding</code></span><code><br />
+    <br />
+  #include "gys.h"<br />
+  <br />
+  #include &lt;fstream&gt;<br />
+  <br />
+      <span class="S5">class</span> GYS_string_user_val<span class="S10">:</span> <span class="S5">public</span> GYS_user_val <span class="S2">// objects of this class contain string data</span><br />
+      <span class="S10">{</span><br />
+      <span class="S5">private</span><span class="S10">:</span><br />
+      <span class="S0">&nbsp; &nbsp; </span>string val<span class="S10">;</span><br />
+  <br />
+      <span class="S5">public</span><span class="S10">:</span><br />
+      <span class="S0">&nbsp; &nbsp; </span>GYS_string_user_val<span class="S10">(</span>string str<span class="S10">)</span> <span class="S10">:</span> val<span class="S10">(</span>str<span class="S10">)</span> <span class="S10">{</span> <span class="S10">}</span><br />
+  <br />
+      <span class="S0">&nbsp; &nbsp; </span><span class="S2">// returns typename as we see it in scripts</span><br />
+      <span class="S0">&nbsp; &nbsp; </span>string get_type_name<span class="S10">()</span> <span class="S5">const</span> <span class="S10">{</span><br />
+      <span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; </span><span class="S5">return</span> <span class="S6">"string"</span><span class="S10">;</span><br />
+      <span class="S0">&nbsp; &nbsp; </span><span class="S10">}</span><br />
+  <br />
+      <span class="S0">&nbsp; &nbsp; </span><span class="S2">// retuns data (as void* value!)</span><br />
+      <span class="S0">&nbsp; &nbsp; </span><span class="S5">void</span><span class="S10">*</span> get_user_val<span class="S10">()</span> <span class="S10">{</span><br />
+      <span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; </span><span class="S5">return</span> <span class="S10">&amp;</span>val<span class="S10">;</span><br />
+      <span class="S0">&nbsp; &nbsp; </span><span class="S10">}</span><br />
+      <span class="S10">};</span><br />
+  <br />
+GYS_ret_val<span class="S10">&amp;</span> store<span class="S10">(</span>GYS_ret_val<span class="S10">&amp;</span> val<span class="S10">,</span> string string_user_val<span class="S10">)</span><br />
+<span class="S10">{</span><br />
+<span class="S0">&nbsp; &nbsp; </span>val<span class="S10">.</span>set_user_val<span class="S10">(</span> <span class="S5">new</span> GYS_string_user_val<span class="S10">(</span>string_user_val<span class="S10">)</span> <span class="S10">);</span><br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S5">return</span> val<span class="S10">;</span><br />
+<span class="S10">}</span><br />
+<br />
+<span class="S2">// gets raw string data</span><br />
+GYS_ret_val get_string_val<span class="S10">(</span>GYS<span class="S10">*</span> script<span class="S10">)</span><br />
+<span class="S10">{</span><br />
+<span class="S0">&nbsp; &nbsp; </span>script<span class="S10">-&gt;</span>get_token<span class="S10">();</span> <span class="S2">// read next token</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S5">if</span><span class="S10">(</span>script<span class="S10">-&gt;</span>get_tok_type<span class="S10">()==</span>GYS_STRING<span class="S10">)</span> <span class="S2">// check its type</span><br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S10">{</span><br />
+<span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; </span><span class="S5">return</span> <span class="S10">(</span>string<span class="S10">)</span>script<span class="S10">-&gt;</span>get_tok_str<span class="S10">();</span> <span class="S2">// return token - it is the string we need</span><br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S10">}</span><br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S5">else</span> <span class="S2">// error</span><br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S10">{</span><br />
+<span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; </span>script<span class="S10">-&gt;</span>error<span class="S10">(</span><span class="S6">"'string' getting: string-token expected: "</span><span class="S10">,</span> script<span class="S10">-&gt;</span>get_tok_str<span class="S10">());</span> <span class="S2">// error</span><br />
+<span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; </span><span class="S5">return</span> GYS_ret_val<span class="S10">();</span><span class="S2">// return void value</span><br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S10">}</span><br />
+<span class="S10">}</span><br />
+<br />
+<span class="S2">// this function will be called to interpret 'print' name-token</span><br />
+GYS_ret_val exec_print<span class="S10">(</span>GYS<span class="S10">*</span> script<span class="S10">)</span><br />
+<span class="S10">{</span><br />
+<span class="S0">&nbsp; &nbsp; </span>script<span class="S10">-&gt;</span>exam<span class="S10">(</span><span class="S6">"("</span><span class="S10">);</span> <span class="S2">// read next token and check it for "("</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span>cout <span class="S10">&lt;&lt;</span> <span class="S10">(</span>string<span class="S10">)</span>script<span class="S10">-&gt;</span>get_val<span class="S10">(</span><span class="S6">"string"</span><span class="S10">);</span> <span class="S2">// evaluate expression to get 'string'-value</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span>script<span class="S10">-&gt;</span>exam<span class="S10">(</span><span class="S6">")"</span><span class="S10">);</span> <span class="S2">// read next token and check it for ")"</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S5">return</span> GYS_ret_val<span class="S10">();</span> <span class="S2">// return "nothing" - value of type gys_void_type</span><br />
+<span class="S10">}</span><br />
+<br />
+GYS_ret_val exec_gets<span class="S10">(</span>GYS<span class="S10">*</span> script<span class="S10">)</span><br />
+<span class="S10">{</span><br />
+<span class="S0">&nbsp; &nbsp; </span>script<span class="S10">-&gt;</span>exam<span class="S10">(</span><span class="S6">"("</span><span class="S10">);</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span>string str<span class="S10">;</span><br />
+<span class="S0">&nbsp; &nbsp; </span>cin <span class="S10">&gt;&gt;</span> str<span class="S10">;</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span>script<span class="S10">-&gt;</span>exam<span class="S10">(</span><span class="S6">")"</span><span class="S10">);</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S5">return</span> str<span class="S10">;</span><br />
+<span class="S10">}</span><br />
+<br />
+GYS_ret_val exec_string<span class="S10">(</span>GYS<span class="S10">*</span> s<span class="S10">)</span><br />
+<span class="S10">{</span><br />
+<span class="S0">&nbsp; &nbsp; </span>string type<span class="S10">=</span><span class="S6">"string"</span><span class="S10">;</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span>GYS_ret_val val<span class="S10">;</span> <span class="S2">// value for new var</span><br />
+<span class="S0">&nbsp; &nbsp; </span>string name<span class="S10">;</span> <span class="S2">// var name</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span>new_var<span class="S10">:</span><br />
+<span class="S0">&nbsp; &nbsp; </span>s<span class="S10">-&gt;</span>get_token<span class="S10">();</span><br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S5">if</span><span class="S10">(</span>s<span class="S10">-&gt;</span>get_tok_type<span class="S10">()!=</span>GYS_NAME<span class="S10">)</span><br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S10">{</span><br />
+<span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; </span>s<span class="S10">-&gt;</span>error<span class="S10">(</span><span class="S6">"Variable token expected: "</span><span class="S10">,</span> s<span class="S10">-&gt;</span>get_tok_str<span class="S10">());</span><br />
+<span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; </span><span class="S5">return</span> GYS_ret_val<span class="S10">();</span><br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S10">}</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span>name<span class="S10">=</span>s<span class="S10">-&gt;</span>get_tok_str<span class="S10">();</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S5">if</span><span class="S10">(!</span>s<span class="S10">-&gt;</span>exam<span class="S10">(</span><span class="S6">"="</span><span class="S10">))</span><br />
+<span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; </span><span class="S5">return</span> GYS_ret_val<span class="S10">();</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S5">if</span><span class="S10">(</span> <span class="S10">(</span> val<span class="S10">=</span>s<span class="S10">-&gt;</span>get_val<span class="S10">(</span> type <span class="S10">)</span> <span class="S10">).</span>get_type_name<span class="S10">()!=</span>gys_void_type <span class="S10">)</span> <span class="S2">// not void</span><br />
+<span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; </span>s<span class="S10">-&gt;</span>add_local_var<span class="S10">(</span>name<span class="S10">,</span> val<span class="S10">.</span>get_value<span class="S10">());</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span>s<span class="S10">-&gt;</span>get_token<span class="S10">();</span><br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S5">if</span><span class="S10">(</span>s<span class="S10">-&gt;</span>get_tok_type<span class="S10">()==</span>GYS_DELIMETER <span class="S10">&amp;&amp;</span> s<span class="S10">-&gt;</span>get_tok_str<span class="S10">()==</span><span class="S6">","</span><span class="S10">)</span><br />
+<span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; </span><span class="S5">goto</span> new_var<span class="S10">;</span><br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S5">else</span><br />
+<span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; </span>s<span class="S10">-&gt;</span>putback_tok<span class="S10">();</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S5">return</span> GYS_ret_val<span class="S10">();</span><br />
+<span class="S10">}</span><br />
+<br />
+<span class="S2">// string+string</span><br />
+GYS_ret_val op_add_string<span class="S10">(</span>GYS<span class="S10">*</span> script<span class="S10">,</span> GYS_ret_val left_operand<span class="S10">,</span> GYS_ret_val right_operand<span class="S10">)</span><br />
+<span class="S10">{</span><br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S5">return</span> <span class="S10">(</span>string<span class="S10">)</span>left_operand <span class="S10">+</span> <span class="S10">(</span>string<span class="S10">)</span>right_operand<span class="S10">;</span><br />
+<span class="S10">}</span><br />
+<br />
+<span class="S5">int</span> main<span class="S10">(</span><span class="S5">int</span> argc<span class="S10">,</span> <span class="S5">char</span><span class="S10">*</span> argv<span class="S10">[])</span><br />
+<span class="S10">{</span><br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S2">// create new script interpreter and set its name</span><br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S5">const</span> <span class="S5">char</span><span class="S10">*</span> filename<span class="S10">=</span><span class="S6">"foo.gys"</span><span class="S10">;</span><br />
+<span class="S0">&nbsp; &nbsp; </span>GYS script<span class="S10">(</span>filename<span class="S10">);</span> <span class="S2">// we set name for debug purposes</span><br />
+<span class="S0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; </span><br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S2">// load the file we want to interpret</span><br />
+<span class="S0">&nbsp; &nbsp; </span>ifstream fin<span class="S10">(</span>filename<span class="S10">);</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S5">if</span><span class="S10">(!</span>fin<span class="S10">)</span> <span class="S2">// error</span><br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S10">{</span><br />
+<span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; </span>cerr<span class="S10">&lt;&lt;</span><span class="S6">"Interpreter error: can't open the input file: "</span><span class="S10">&lt;&lt;</span>filename<span class="S10">&lt;&lt;</span>endl<span class="S10">;</span><br />
+<span class="S0">&nbsp; &nbsp; &nbsp; &nbsp; </span><span class="S5">return</span> 1<span class="S10">;</span><br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S10">}</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S2">// set input for our interpreter</span><br />
+<span class="S0">&nbsp; &nbsp; </span>script<span class="S10">.</span>set_input<span class="S10">(&amp;</span>fin<span class="S10">);</span><span class="S0"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp; </span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S2">// add error and warning handlers (here we use standard handlers) </span><br />
+<span class="S0">&nbsp; &nbsp; </span>script<span class="S10">.</span>set_warning_func<span class="S10">(</span>std_gys_warning_callback<span class="S10">);</span><br />
+<span class="S0">&nbsp; &nbsp; </span>script<span class="S10">.</span>set_error_func<span class="S10">(</span>std_gys_error_callback<span class="S10">);</span><br />
+<span class="S0">&nbsp; &nbsp; </span>script<span class="S10">.</span>set_fatal_error_func<span class="S10">(</span>std_gys_fatal_error_callback<span class="S10">);</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S2">// --- Language definition:</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S2">// types</span><br />
+<span class="S0">&nbsp; &nbsp; </span>script<span class="S10">.</span>add_gys_type<span class="S10">(</span><span class="S6">"string"</span><span class="S10">,</span> get_string_val<span class="S10">);</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S2">// functions</span><br />
+<span class="S0">&nbsp; &nbsp; </span>script<span class="S10">.</span>add_gys_func<span class="S10">(</span><span class="S6">"print"</span><span class="S10">,</span> exec_print<span class="S10">);</span><br />
+<span class="S0">&nbsp; &nbsp; </span>script<span class="S10">.</span>add_gys_func<span class="S10">(</span><span class="S6">"gets"</span><span class="S10">,</span><span class="S0"> &nbsp;</span>exec_gets<span class="S10">);</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S2">// var definition statement</span><br />
+<span class="S0">&nbsp; &nbsp; </span>script<span class="S10">.</span>add_gys_func<span class="S10">(</span><span class="S6">"string"</span><span class="S10">,</span> exec_string<span class="S10">);</span> <br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S2">// binary operators</span><br />
+<span class="S0">&nbsp; &nbsp; </span>script<span class="S10">.</span>add_binary_op<span class="S10">(</span><span class="S6">"+"</span><span class="S10">,</span> <span class="S6">"string"</span><span class="S10">,</span> <span class="S6">"string"</span><span class="S10">,</span> op_add_string<span class="S10">);</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S2">// interpretation</span><br />
+<span class="S0">&nbsp; &nbsp; </span>script<span class="S10">.</span>interp<span class="S10">();</span><br />
+<br />
+<span class="S0">&nbsp; &nbsp; </span><span class="S5">return</span> 0<span class="S10">;</span><br />
+<span class="S10">}</span></code></span> </p>
+<hr>
+<h2><strong>Summary</strong></h2>
+<p>...So  our simplest script can be executed as we wanted and it took about 150 lines of code to implement all the basic functionality we wanted. Note that interpreter takes as much job as possible and user has to define only specific language functionality like commands and types.</p>
+<hr><hr>
+</body>
+</html>

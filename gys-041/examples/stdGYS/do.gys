@@ -1,0 +1,18 @@
+// do.gys - example of do loop: prints ASCII codes
+/*
+	--> do loop
+*/
+
+println("Enter chars (press ESC to exit)...")
+
+char c='\0'
+do
+{
+	c=getch()
+	//c=readc()
+	println('\''+c+"' = "+ctoi(c))		
+}
+while(ctoi(c)!=27)
+
+println("\nPress any key to exit...")
+getch()

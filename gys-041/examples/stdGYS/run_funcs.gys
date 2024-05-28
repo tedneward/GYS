@@ -1,0 +1,19 @@
+// run_funcs.gys - example of using run-funcs
+/*
+	--> run() - executes script from the string
+	--> run_script() - executes script-file
+*/
+
+// execute from string:
+run(
+"
+	println(\"This is a script from the run() built-in function!\")
+")
+
+println("\n")
+
+// execute from file:
+run_script("sub.gys")
+
+println("\n--> Press any key to exit...")
+getch()

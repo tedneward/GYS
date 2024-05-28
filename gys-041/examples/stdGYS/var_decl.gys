@@ -1,0 +1,36 @@
+// var_decl.gys - example of different var and const declarations
+/*
+	--> 7 (+void) standard types
+	--> global/local vars and consts
+*/
+ 
+//-----------------------------local variables:---------------------------
+bool logical=1                                  
+
+int i=10
+
+double pi=3.14
+
+char ch='\n'
+
+string str="some string"
+
+vector v=#int{1, 2, 3, 4, 5}
+
+function sum=~int(int a, int b)
+			  {
+			       return a+b
+			  }
+
+//---------------------------local constants:-----------------------------
+char @const_A='A'
+
+vector @const_vec=#bool[10]:0
+
+//-------------------global variables and constants:----------------------
+global string some_global_var="global var"
+
+global double @e=2.71
+
+println("\nPress any key to exit...")
+getch()
