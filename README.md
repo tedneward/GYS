@@ -3,6 +3,15 @@ A scripting language base. Ported from the original C++ on SourceForge to modern
 
 The original is at https://gys.sourceforge.net/ and hasn't been updated since 2004.
 
+## Contents
+./gys-041 is the last release made available from Sourceforge.
+
+./cpp brings gys-041 into 2024, using CMake to build statically-linked executables. CLion was used for the IDE for maximum portability.
+
+Plans are for Java, Kotlin, C#, Swift, and other language ports once I get the C++ code working and try extending an example or two.
+
+
+
 # Original Home Page Contents
 GYS is the scripting engine which helps to create the embedded interpreter of your own language.
 
